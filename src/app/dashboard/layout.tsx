@@ -1,3 +1,4 @@
+
 'use client';
 
 import type { ReactNode } from "react";
@@ -7,8 +8,7 @@ import Logo from "@/components/shared/Logo";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { User, ShoppingCart, LogOut, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { AuthGuard } from "@/hooks/use-auth";
 
 const dashboardNavLinks = [
     { href: "/dashboard", label: "Overview", icon: User },
@@ -16,48 +16,7 @@ const dashboardNavLinks = [
     { href: "/dashboard/artisan", label: "My Orders", icon: ShoppingCart },
 ];
 
-function useAuth() {
-  // In a real app, you'd have a more robust auth check,
-  // possibly involving a context provider or a library like NextAuth.js
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-    // Simulate checking for an authentication token
-    const checkAuth = async () => {
-      // For demonstration, we'll just use a timeout to simulate an async check.
-      // Replace this with your actual auth logic (e.g., checking localStorage, a cookie, or making an API call).
-      await new Promise(resolve => setTimeout(resolve, 500));
-      // In this mock, we'll assume the user is not authenticated.
-      // To test the authenticated state, you can change this to `true`.
-      setIsAuthenticated(false); 
-      setIsLoading(false);
-    };
-
-    checkAuth();
-  }, []);
-
-  return { isAuthenticated, isLoading };
-}
-
-export default function DashboardLayout({ children }: { children: ReactNode }) {
-    const { isAuthenticated, isLoading } = useAuth();
-    const router = useRouter();
-
-    useEffect(() => {
-        if (!isLoading && !isAuthenticated) {
-            router.push('/login');
-        }
-    }, [isLoading, isAuthenticated, router]);
-    
-    if (isLoading || !isAuthenticated) {
-        return (
-            <div className="flex min-h-screen items-center justify-center">
-                <p>Loading...</p>
-            </div>
-        );
-    }
-    
+function DashboardLayoutContent({ children }: { children: ReactNode }) {
     return (
         <SidebarProvider>
             <div className="flex min-h-screen">
@@ -107,4 +66,13 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
             </div>
         </SidebarProvider>
     );
+}
+
+
+export default function DashboardLayout({ children }: { children: ReactNode }) {
+    return (
+        <AuthGuard>
+            <DashboardLayoutContent>{children}</DashboardLayoutContent>
+        </AuthGuard>
+    )
 }

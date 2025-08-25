@@ -1,3 +1,6 @@
+
+'use client';
+
 import ArtisanCard from '@/components/artisans/ArtisanCard';
 import { artisanData, categories } from '@/lib/placeholder-data';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -7,8 +10,9 @@ import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Slider } from '@/components/ui/slider';
+import { AuthGuard } from '@/hooks/use-auth';
 
-export default function SearchPage() {
+function SearchPageContent() {
   return (
     <div className="container mx-auto py-8 px-4">
       <div className="text-center mb-12">
@@ -73,4 +77,12 @@ export default function SearchPage() {
       </div>
     </div>
   );
+}
+
+export default function SearchPage() {
+    return (
+        <AuthGuard>
+            <SearchPageContent />
+        </AuthGuard>
+    )
 }

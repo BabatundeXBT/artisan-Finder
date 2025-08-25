@@ -1,3 +1,6 @@
+
+'use client';
+
 import Image from 'next/image';
 import { artisanData } from '@/lib/placeholder-data';
 import { notFound } from 'next/navigation';
@@ -8,8 +11,9 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import ReviewCard from '@/components/artisans/ReviewCard';
+import { AuthGuard } from '@/hooks/use-auth';
 
-export default function ArtisanProfilePage({ params }: { params: { id: string } }) {
+function ArtisanProfilePageContent({ params }: { params: { id: string } }) {
   const artisan = artisanData.find((a) => a.id === params.id);
 
   if (!artisan) {
@@ -113,5 +117,13 @@ export default function ArtisanProfilePage({ params }: { params: { id: string } 
         </TabsContent>
       </Tabs>
     </div>
+  );
+}
+
+export default function ArtisanProfilePage({ params }: { params: { id: string } }) {
+  return (
+    <AuthGuard>
+      <ArtisanProfilePageContent params={params} />
+    </AuthGuard>
   );
 }
