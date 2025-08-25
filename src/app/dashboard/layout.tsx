@@ -8,7 +8,7 @@ import Logo from "@/components/shared/Logo";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { User, ShoppingCart, LogOut, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { AuthGuard } from "@/hooks/use-auth";
+import { AuthGuard } from '@/hooks/use-auth.tsx';
 
 const dashboardNavLinks = [
     { href: "/dashboard", label: "Overview", icon: User },

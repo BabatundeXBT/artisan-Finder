@@ -10,7 +10,7 @@ import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Slider } from '@/components/ui/slider';
-import { AuthGuard } from '@/hooks/use-auth';
+import { AuthGuard } from '@/hooks/use-auth.tsx';
 
 function SearchPageContent() {
   return (

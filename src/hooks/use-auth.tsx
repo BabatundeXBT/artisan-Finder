@@ -1,7 +1,6 @@
-
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, ReactNode } from 'react';
 import { useRouter } from 'next/navigation';
 
 export function useAuth(redirectTo = '/login') {
@@ -30,7 +29,7 @@ export function useAuth(redirectTo = '/login') {
   return { isAuthenticated, isLoading };
 }
 
-export function AuthGuard({ children }: { children: React.ReactNode }) {
+export function AuthGuard({ children }: { children: ReactNode }) {
     const { isAuthenticated, isLoading } = useAuth();
     
     if (isLoading || !isAuthenticated) {
