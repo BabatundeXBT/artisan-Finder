@@ -1,9 +1,8 @@
-// Import the functions you need from the SDKs you need
-import { initializeApp, getApps, getApp, type FirebaseApp } from "firebase/app";
-import { getAuth, type Auth } from "firebase/auth";
-import { getFirestore, type Firestore } from "firebase/firestore";
 
-// Your web app's Firebase configuration
+import { initializeApp, getApp, getApps } from "firebase/app";
+import { getAuth } from "firebase/auth";
+import { getFirestore } from "firebase/firestore";
+
 const firebaseConfig = {
   "projectId": "artisan-direct",
   "appId": "1:246039021194:web:fe0a3b2ee02e406dd88f73",
@@ -14,9 +13,9 @@ const firebaseConfig = {
   "messagingSenderId": "246039021194"
 };
 
-// Initialize Firebase for SSR
-const app: FirebaseApp = getApps().length ? getApp() : initializeApp(firebaseConfig);
-const auth: Auth = getAuth(app);
-const db: Firestore = getFirestore(app);
+// Initialize Firebase
+const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
 
 export { auth, db };
