@@ -22,6 +22,11 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import Logo from '@/components/shared/Logo';
+import { auth, db } from '@/lib/firebase';
+import { createUserWithEmailAndPassword } from 'firebase/auth';
+import { setDoc, doc } from 'firebase/firestore';
+import { useToast } from '@/hooks/use-toast';
+import { useRouter } from 'next/navigation';
 
 const formSchema = z.object({
   fullName: z.string().min(2, { message: 'Name must be at least 2 characters.' }),
@@ -30,6 +35,8 @@ const formSchema = z.object({
 });
 
 export default function SignUpPage() {
+  const { toast } = useToast();
+  const router = useRouter();
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -39,9 +46,31 @@ export default function SignUpPage() {
     },
   });
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log(values);
-    // Handle signup logic here
+  async function onSubmit(values: z.infer<typeof formSchema>) {
+    try {
+      const userCredential = await createUserWithEmailAndPassword(auth, values.email, values.password);
+      const user = userCredential.user;
+      
+      await setDoc(doc(db, "users", user.uid), {
+        uid: user.uid,
+        fullName: values.fullName,
+        email: values.email,
+      });
+
+      toast({
+        title: "Account Created",
+        description: "You have successfully signed up.",
+      });
+      router.push('/dashboard');
+
+    } catch (error: any) {
+      console.error("Error signing up: ", error);
+      toast({
+        variant: "destructive",
+        title: "Uh oh! Something went wrong.",
+        description: error.message || "There was a problem with your request.",
+      });
+    }
   }
 
   return (
@@ -96,8 +125,8 @@ export default function SignUpPage() {
                   </FormItem>
                 )}
               />
-              <Button type="submit" className="w-full bg-accent hover:bg-accent/90 text-accent-foreground font-bold text-base mt-2">
-                Create Account
+              <Button type="submit" className="w-full bg-accent hover:bg-accent/90 text-accent-foreground font-bold text-base mt-2" disabled={form.formState.isSubmitting}>
+                 {form.formState.isSubmitting ? 'Creating Account...' : 'Create Account'}
               </Button>
             </form>
           </Form>

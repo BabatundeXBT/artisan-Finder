@@ -8,7 +8,12 @@ import Logo from "@/components/shared/Logo";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { User, ShoppingCart, LogOut, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { AuthGuard } from '@/hooks/use-auth.tsx';
+import { AuthGuard, useAuth } from '@/hooks/use-auth';
+import { auth, db } from '@/lib/firebase';
+import { signOut } from 'firebase/auth';
+import { doc, getDoc } from 'firebase/firestore';
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 
 const dashboardNavLinks = [
     { href: "/dashboard", label: "Overview", icon: User },
@@ -17,6 +22,27 @@ const dashboardNavLinks = [
 ];
 
 function DashboardLayoutContent({ children }: { children: ReactNode }) {
+    const { user } = useAuth();
+    const router = useRouter();
+    const [userData, setUserData] = useState<{fullName: string, email: string} | null>(null);
+
+    useEffect(() => {
+        if (user) {
+            const fetchUserData = async () => {
+                const userDoc = await getDoc(doc(db, "users", user.uid));
+                if (userDoc.exists()) {
+                    setUserData(userDoc.data() as {fullName: string, email: string});
+                }
+            };
+            fetchUserData();
+        }
+    }, [user]);
+
+    const handleLogout = async () => {
+        await signOut(auth);
+        router.push('/');
+    };
+
     return (
         <SidebarProvider>
             <div className="flex min-h-screen">
@@ -41,16 +67,14 @@ function DashboardLayoutContent({ children }: { children: ReactNode }) {
                             <div className="flex items-center gap-3">
                                 <Avatar>
                                     <AvatarImage src="https://placehold.co/100x100.png" alt="User" data-ai-hint="person avatar" />
-                                    <AvatarFallback>U</AvatarFallback>
+                                    <AvatarFallback>{userData?.fullName?.[0] || 'U'}</AvatarFallback>
                                 </Avatar>
                                 <div className="flex-1">
-                                    <p className="font-semibold text-sm">User Name</p>
-                                    <p className="text-xs text-muted-foreground">user@email.com</p>
+                                    <p className="font-semibold text-sm">{userData?.fullName || 'User Name'}</p>
+                                    <p className="text-xs text-muted-foreground">{userData?.email || 'user@email.com'}</p>
                                 </div>
-                                <Button variant="ghost" size="icon" asChild>
-                                  <Link href="/">
+                                <Button variant="ghost" size="icon" onClick={handleLogout}>
                                     <LogOut className="h-4 w-4" />
-                                  </Link>
                                 </Button>
                             </div>
                         </div>

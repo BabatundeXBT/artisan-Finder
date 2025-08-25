@@ -1,38 +1,62 @@
 'use client';
 
-import { useEffect, useState, ReactNode } from 'react';
-import { useRouter } from 'next/navigation';
+import { useEffect, useState, ReactNode, createContext, useContext } from 'react';
+import { useRouter, usePathname } from 'next/navigation';
+import { auth } from '@/lib/firebase';
+import { onAuthStateChanged, User } from 'firebase/auth';
 
-export function useAuth(redirectTo = '/login') {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
-  const router = useRouter();
+interface AuthContextType {
+    user: User | null;
+    isAuthenticated: boolean;
+    isLoading: boolean;
+}
 
-  useEffect(() => {
-    const checkAuth = async () => {
-      // Simulate checking for an authentication token
-      await new Promise(resolve => setTimeout(resolve, 500));
-      // In this mock, we'll assume the user is not authenticated.
-      // To test the authenticated state, you can change this to `true`.
-      const authStatus = false; 
-      setIsAuthenticated(authStatus);
-      setIsLoading(false);
-      
-      if (!authStatus) {
-        router.push(redirectTo);
-      }
+const AuthContext = createContext<AuthContextType>({ 
+    user: null, 
+    isAuthenticated: false, 
+    isLoading: true 
+});
+
+export function AuthProvider({ children }: { children: ReactNode }) {
+    const [user, setUser] = useState<User | null>(null);
+    const [isLoading, setIsLoading] = useState(true);
+
+    useEffect(() => {
+        const unsubscribe = onAuthStateChanged(auth, (user) => {
+            setUser(user);
+            setIsLoading(false);
+        });
+
+        return () => unsubscribe();
+    }, []);
+
+    const value = {
+        user,
+        isAuthenticated: !!user,
+        isLoading
     };
 
-    checkAuth();
-  }, [router, redirectTo]);
-  
-  return { isAuthenticated, isLoading };
+    return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
+
+export const useAuth = () => {
+    return useContext(AuthContext);
+}
+
+const publicRoutes = ['/login', '/signup', '/'];
 
 export function AuthGuard({ children }: { children: ReactNode }) {
     const { isAuthenticated, isLoading } = useAuth();
+    const router = useRouter();
+    const pathname = usePathname();
+
+    useEffect(() => {
+        if (!isLoading && !isAuthenticated && !publicRoutes.includes(pathname)) {
+            router.push('/login');
+        }
+    }, [isAuthenticated, isLoading, router, pathname]);
     
-    if (isLoading || !isAuthenticated) {
+    if (isLoading || (!isAuthenticated && !publicRoutes.includes(pathname))) {
         return (
             <div className="flex min-h-screen items-center justify-center">
                 <p>Loading...</p>

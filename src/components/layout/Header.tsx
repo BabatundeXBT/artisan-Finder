@@ -7,15 +7,18 @@ import { Menu, Wrench } from "lucide-react";
 import Logo from "../shared/Logo";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
+import { useAuth } from "@/hooks/use-auth";
+import { auth } from "@/lib/firebase";
+import { signOut } from "firebase/auth";
 
 const navLinks = [
   { href: "/search", label: "Find Artisans" },
   { href: "/artisans/register", label: "Become an Artisan" },
-  { href: "/dashboard", label: "Dashboard" },
 ];
 
 export default function Header() {
   const pathname = usePathname();
+  const { isAuthenticated, isLoading } = useAuth();
   
   const NavLink = ({ href, label }: { href: string, label: string }) => (
     <Link href={href}>
@@ -29,6 +32,10 @@ export default function Header() {
       </span>
     </Link>
   );
+
+  const handleLogout = async () => {
+    await signOut(auth);
+  };
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -49,6 +56,7 @@ export default function Header() {
                 {navLinks.map((link) => (
                   <NavLink key={link.href} {...link} />
                 ))}
+                 {isAuthenticated && <NavLink href="/dashboard" label="Dashboard" />}
               </nav>
             </SheetContent>
           </Sheet>
@@ -61,14 +69,25 @@ export default function Header() {
              {navLinks.map((link) => (
                <NavLink key={link.href} {...link} />
              ))}
+             {isAuthenticated && <NavLink href="/dashboard" label="Dashboard" />}
           </nav>
           <div className="flex items-center gap-2">
-            <Button variant="outline" asChild>
-                <Link href="/login">Login</Link>
-            </Button>
-            <Button asChild className="bg-accent hover:bg-accent/90 text-accent-foreground">
-                <Link href="/signup">Sign Up</Link>
-            </Button>
+            {!isLoading && (
+              <>
+                {isAuthenticated ? (
+                  <Button variant="outline" onClick={handleLogout}>Logout</Button>
+                ) : (
+                  <>
+                    <Button variant="outline" asChild>
+                        <Link href="/login">Login</Link>
+                    </Button>
+                    <Button asChild className="bg-accent hover:bg-accent/90 text-accent-foreground">
+                        <Link href="/signup">Sign Up</Link>
+                    </Button>
+                  </>
+                )}
+              </>
+            )}
           </div>
         </div>
       </div>

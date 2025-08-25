@@ -11,7 +11,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import ReviewCard from '@/components/artisans/ReviewCard';
-import { AuthGuard } from '@/hooks/use-auth.tsx';
+import { AuthGuard } from '@/hooks/use-auth';
 
 function ArtisanProfilePageContent({ params }: { params: { id: string } }) {
   const artisan = artisanData.find((a) => a.id === params.id);
