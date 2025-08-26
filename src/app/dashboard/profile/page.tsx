@@ -20,11 +20,16 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { Separator } from '@/components/ui/separator';
+import { useAuth } from '@/hooks/use-auth';
+import { auth, db } from '@/lib/firebase';
+import { doc, getDoc, updateDoc } from 'firebase/firestore';
+import { useEffect } from 'react';
+import { EmailAuthProvider, reauthenticateWithCredential, updatePassword } from 'firebase/auth';
+import { useToast } from '@/hooks/use-toast';
 
 const profileFormSchema = z.object({
   fullName: z.string().min(2, { message: 'Name must be at least 2 characters.' }),
-  email: z.string().email({ message: 'Please enter a valid email.' }),
+  email: z.string().email({ message: 'Please enter a valid email.' }).readonly(),
 });
 
 const passwordFormSchema = z.object({
@@ -37,11 +42,14 @@ const passwordFormSchema = z.object({
 });
 
 export default function ProfilePage() {
+  const { user } = useAuth();
+  const { toast } = useToast();
+
   const profileForm = useForm<z.infer<typeof profileFormSchema>>({
     resolver: zodResolver(profileFormSchema),
     defaultValues: {
-      fullName: 'John Doe',
-      email: 'john.doe@example.com',
+      fullName: '',
+      email: '',
     },
   });
   
@@ -54,12 +62,63 @@ export default function ProfilePage() {
     },
   });
 
-  function onProfileSubmit(values: z.infer<typeof profileFormSchema>) {
-    console.log('Profile update:', values);
+  useEffect(() => {
+    if (user) {
+        const fetchUserData = async () => {
+            const userDoc = await getDoc(doc(db, "users", user.uid));
+            if (userDoc.exists()) {
+                const userData = userDoc.data();
+                profileForm.reset({
+                    fullName: userData.fullName,
+                    email: userData.email,
+                });
+            }
+        };
+        fetchUserData();
+    }
+  }, [user, profileForm]);
+
+  async function onProfileSubmit(values: z.infer<typeof profileFormSchema>) {
+    if (!user) return;
+    try {
+      const userDocRef = doc(db, "users", user.uid);
+      await updateDoc(userDocRef, { fullName: values.fullName });
+      toast({
+        title: "Profile Updated",
+        description: "Your name has been successfully updated.",
+      });
+    } catch (error) {
+      console.error("Error updating profile:", error);
+      toast({
+        variant: "destructive",
+        title: "Update Failed",
+        description: "Could not update your profile. Please try again.",
+      });
+    }
   }
   
-  function onPasswordSubmit(values: z.infer<typeof passwordFormSchema>) {
-    console.log('Password change:', values);
+  async function onPasswordSubmit(values: z.infer<typeof passwordFormSchema>) {
+    if (!user || !user.email) return;
+
+    try {
+        const credential = EmailAuthProvider.credential(user.email, values.currentPassword);
+        await reauthenticateWithCredential(user, credential);
+        await updatePassword(user, values.newPassword);
+        
+        toast({
+            title: "Password Updated",
+            description: "Your password has been changed successfully.",
+        });
+        passwordForm.reset();
+
+    } catch (error) {
+        console.error("Error updating password:", error);
+        toast({
+            variant: "destructive",
+            title: "Password Update Failed",
+            description: "Could not update your password. Please check your current password and try again.",
+        });
+    }
   }
 
   return (
@@ -84,11 +143,13 @@ export default function ProfilePage() {
                 <FormField control={profileForm.control} name="email" render={({ field }) => (
                   <FormItem>
                     <FormLabel>Email</FormLabel>
-                    <FormControl><Input {...field} /></FormControl>
+                    <FormControl><Input {...field} disabled /></FormControl>
                     <FormMessage />
                   </FormItem>
                 )} />
-                <Button type="submit">Save Changes</Button>
+                <Button type="submit" disabled={profileForm.formState.isSubmitting}>
+                  {profileForm.formState.isSubmitting ? 'Saving...' : 'Save Changes'}
+                </Button>
               </form>
             </Form>
           </CardContent>
@@ -123,7 +184,9 @@ export default function ProfilePage() {
                     <FormMessage />
                   </FormItem>
                 )} />
-                <Button type="submit">Update Password</Button>
+                <Button type="submit" disabled={passwordForm.formState.isSubmitting}>
+                   {passwordForm.formState.isSubmitting ? 'Updating...' : 'Update Password'}
+                </Button>
               </form>
             </Form>
           </CardContent>
