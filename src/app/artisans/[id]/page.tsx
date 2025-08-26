@@ -12,6 +12,7 @@ import { Separator } from '@/components/ui/separator';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import ReviewCard from '@/components/artisans/ReviewCard';
 import { AuthGuard } from '@/hooks/use-auth';
+import React from 'react';
 
 function ArtisanProfilePageContent({ params }: { params: { id: string } }) {
   const artisan = artisanData.find((a) => a.id === params.id);
@@ -120,10 +121,11 @@ function ArtisanProfilePageContent({ params }: { params: { id: string } }) {
   );
 }
 
-export default function ArtisanProfilePage({ params }: { params: { id: string } }) {
+export default function ArtisanProfilePage({ params }: { params: Promise<{ id: string }> }) {
+  const awaitedParams = React.use(params);
   return (
     <AuthGuard>
-      <ArtisanProfilePageContent params={params} />
+      <ArtisanProfilePageContent params={awaitedParams} />
     </AuthGuard>
   );
 }
