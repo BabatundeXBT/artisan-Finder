@@ -70,12 +70,12 @@ export default function ProfilePage() {
                 const userData = userDoc.data();
                 profileForm.reset({
                     fullName: userData.fullName,
-                    email: user.email, // Use email from auth user object
+                    email: user.email || '',
                 });
             } else {
                  profileForm.reset({
                     fullName: '',
-                    email: user.email, // Use email from auth user object
+                    email: user.email || '',
                 });
             }
         };
