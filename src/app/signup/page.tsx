@@ -32,6 +32,10 @@ const formSchema = z.object({
   fullName: z.string().min(2, { message: 'Name must be at least 2 characters.' }),
   email: z.string().email({ message: 'Please enter a valid email.' }),
   password: z.string().min(8, { message: 'Password must be at least 8 characters.' }),
+  confirmPassword: z.string(),
+}).refine(data => data.password === data.confirmPassword, {
+    message: "Passwords don't match",
+    path: ["confirmPassword"],
 });
 
 export default function SignUpPage() {
@@ -43,6 +47,7 @@ export default function SignUpPage() {
       fullName: '',
       email: '',
       password: '',
+      confirmPassword: '',
     },
   });
 
@@ -56,7 +61,7 @@ export default function SignUpPage() {
         fullName: values.fullName,
         email: values.email,
       });
-
+      
       router.push('/dashboard');
       toast({
         title: "Account Created",
@@ -118,6 +123,19 @@ export default function SignUpPage() {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Password</FormLabel>
+                    <FormControl>
+                      <Input type="password" placeholder="••••••••" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="confirmPassword"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Confirm Password</FormLabel>
                     <FormControl>
                       <Input type="password" placeholder="••••••••" {...field} />
                     </FormControl>
