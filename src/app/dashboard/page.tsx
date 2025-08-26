@@ -1,9 +1,31 @@
+'use client';
+
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { User, ShoppingCart, Edit } from "lucide-react";
+import { useAuth } from "@/hooks/use-auth";
+import { doc, getDoc } from "firebase/firestore";
+import { db } from "@/lib/firebase";
+import { useEffect, useState } from "react";
 
 export default function DashboardPage() {
+  const { user } = useAuth();
+  const [userData, setUserData] = useState<{fullName: string, email: string} | null>(null);
+
+  useEffect(() => {
+    if (user) {
+      const fetchUserData = async () => {
+        const userDoc = await getDoc(doc(db, "users", user.uid));
+        if (userDoc.exists()) {
+          setUserData(userDoc.data() as {fullName: string, email: string});
+        }
+      };
+      fetchUserData();
+    }
+  }, [user]);
+
+
   return (
     <div>
       <h1 className="text-3xl font-headline font-bold mb-6">User Dashboard</h1>
@@ -14,8 +36,8 @@ export default function DashboardPage() {
             <User className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">John Doe</div>
-            <p className="text-xs text-muted-foreground">john.doe@example.com</p>
+            <div className="text-2xl font-bold">{userData?.fullName || 'Loading...'}</div>
+            <p className="text-xs text-muted-foreground">{userData?.email || '...'}</p>
              <Button variant="outline" size="sm" className="mt-4" asChild>
                 <Link href="/dashboard/profile">
                     <Edit className="mr-2 h-4 w-4" /> Edit Profile
