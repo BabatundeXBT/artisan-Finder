@@ -62,11 +62,12 @@ export default function SignUpPage() {
         email: values.email,
       });
       
-      router.push('/dashboard');
       toast({
         title: "Account Created",
         description: "Welcome to your dashboard!",
       });
+
+      router.push('/dashboard');
 
     } catch (error: any) {
       console.error("Error signing up: ", error);
