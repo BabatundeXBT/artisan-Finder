@@ -59,7 +59,7 @@ export default function SignUpPage() {
 
       toast({
         title: "Account Created",
-        description: "You have successfully signed up.",
+        description: "Redirecting you to your dashboard...",
       });
       router.push('/dashboard');
 
