@@ -29,7 +29,7 @@ import { useToast } from '@/hooks/use-toast';
 
 const profileFormSchema = z.object({
   fullName: z.string().min(2, { message: 'Name must be at least 2 characters.' }),
-  email: z.string().email({ message: 'Please enter a valid email.' }).readonly(),
+  email: z.string().email({ message: 'Please enter a valid email.' }),
 });
 
 const passwordFormSchema = z.object({
@@ -70,7 +70,12 @@ export default function ProfilePage() {
                 const userData = userDoc.data();
                 profileForm.reset({
                     fullName: userData.fullName,
-                    email: userData.email,
+                    email: user.email, // Use email from auth user object
+                });
+            } else {
+                 profileForm.reset({
+                    fullName: '',
+                    email: user.email, // Use email from auth user object
                 });
             }
         };
