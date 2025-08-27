@@ -42,6 +42,8 @@ export const artisanData: Artisan[] = [
   {
     id: '1',
     name: 'Elena Garcia',
+    email: 'elena.garcia@example.com',
+    phone: '(555) 123-4567',
     category: 'Carpenter',
     location: 'Brooklyn, NY',
     rating: 4.9,
@@ -57,6 +59,8 @@ export const artisanData: Artisan[] = [
   {
     id: '2',
     name: 'Marcus Holloway',
+    email: 'marcus.holloway@example.com',
+    phone: '(555) 234-5678',
     category: 'Painter',
     location: 'San Francisco, CA',
     rating: 4.8,
@@ -72,6 +76,8 @@ export const artisanData: Artisan[] = [
   {
     id: '3',
     name: 'Aisha Khan',
+    email: 'aisha.khan@example.com',
+    phone: '(555) 345-6789',
     category: 'Tailor',
     location: 'Chicago, IL',
     rating: 5.0,
@@ -87,6 +93,8 @@ export const artisanData: Artisan[] = [
   {
     id: '4',
     name: 'David Chen',
+    email: 'david.chen@example.com',
+    phone: '(555) 456-7890',
     category: 'Plumber',
     location: 'Austin, TX',
     rating: 4.7,
@@ -103,6 +111,8 @@ export const artisanData: Artisan[] = [
   {
     id: '5',
     name: 'Isabella Rossi',
+    email: 'isabella.rossi@example.com',
+    phone: '(555) 567-8901',
     category: 'Chef',
     location: 'Miami, FL',
     rating: 4.9,
@@ -118,6 +128,8 @@ export const artisanData: Artisan[] = [
   {
     id: '6',
     name: 'Leo Maxwell',
+    email: 'leo.maxwell@example.com',
+    phone: '(555) 678-9012',
     category: 'Designer',
     location: 'Los Angeles, CA',
     rating: 4.8,

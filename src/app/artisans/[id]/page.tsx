@@ -18,6 +18,7 @@ import { db } from '@/lib/firebase';
 import { useToast } from '@/hooks/use-toast';
 import { Review } from '@/lib/types';
 import WriteReviewDialog from '@/components/artisans/WriteReviewDialog';
+import ArtisanContactDialog from '@/components/artisans/ArtisanContactDialog';
 
 function ArtisanProfilePageContent({ params }: { params: { id: string } }) {
   const artisan = artisanData.find((a) => a.id === params.id);
@@ -137,9 +138,7 @@ function ArtisanProfilePageContent({ params }: { params: { id: string } }) {
           <p className="mt-4 text-foreground/80 max-w-prose">{artisan.bio}</p>
           <div className="mt-6 flex flex-wrap gap-4">
             <Button size="lg" className="bg-accent hover:bg-accent/90 text-accent-foreground font-bold" onClick={handleRequestService}>Request Service</Button>
-            <Button size="lg" variant="outline">
-              <MessageSquare className="mr-2 h-5 w-5" /> Contact Artisan
-            </Button>
+            <ArtisanContactDialog artisan={artisan} />
           </div>
         </div>
       </div>
