@@ -57,7 +57,7 @@ async function getUsers(): Promise<User[]> {
         email: data.email,
         // Placeholders - to be implemented
         joined: new Date().toLocaleDateString(), 
-        status: 'Active' 
+        status: 'Active' as const
       };
     });
     return userList;
