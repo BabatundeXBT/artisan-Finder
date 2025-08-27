@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useForm } from 'react-hook-form';
@@ -66,18 +67,16 @@ export default function ProfilePage() {
     if (user) {
         const fetchUserData = async () => {
             const userDoc = await getDoc(doc(db, "users", user.uid));
+            let fullName = '';
             if (userDoc.exists()) {
                 const userData = userDoc.data();
-                profileForm.reset({
-                    fullName: userData.fullName,
-                    email: user.email || '',
-                });
-            } else {
-                 profileForm.reset({
-                    fullName: '',
-                    email: user.email || '',
-                });
+                fullName = userData.fullName;
             }
+            
+            profileForm.reset({
+                fullName: fullName,
+                email: user.email || '',
+            });
         };
         fetchUserData();
     }
