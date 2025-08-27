@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { SidebarProvider, Sidebar, SidebarTrigger, SidebarContent, SidebarHeader, SidebarMenu, SidebarMenuItem, SidebarMenuButton } from "@/components/ui/sidebar";
 import Logo from "@/components/shared/Logo";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { User, ShoppingCart, LogOut, Settings, Briefcase } from "lucide-react";
+import { User, ShoppingCart, LogOut, Settings, Briefcase, MessageSquare } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { AuthGuard, useAuth } from '@/hooks/use-auth';
 import { auth, db } from '@/lib/firebase';
@@ -18,6 +18,7 @@ import { useEffect, useState } from "react";
 const baseNavLinks = [
     { href: "/dashboard", label: "Overview", icon: User },
     { href: "/dashboard/profile", label: "My Profile", icon: Settings },
+    { href: "/dashboard/my-reviews", label: "My Reviews", icon: MessageSquare },
 ];
 
 function DashboardLayoutContent({ children }: { children: ReactNode }) {
