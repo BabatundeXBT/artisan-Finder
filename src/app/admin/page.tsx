@@ -24,7 +24,7 @@ import {
     DropdownMenuItem,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { collection, getDocs } from 'firebase/firestore';
+import { collection, getDocs, Timestamp } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 
 interface User {
@@ -43,9 +43,6 @@ interface Artisan {
     status: 'Approved' | 'Pending Approval';
 }
 
-// NOTE: This will be replaced with a database call once artisan registration is implemented
-const artisans: Artisan[] = [];
-
 async function getUsers(): Promise<User[]> {
     const usersCollection = collection(db, 'users');
     const userSnapshot = await getDocs(usersCollection);
@@ -63,8 +60,26 @@ async function getUsers(): Promise<User[]> {
     return userList;
 }
 
+async function getArtisans(): Promise<Artisan[]> {
+    const artisansCollection = collection(db, 'artisans');
+    const artisanSnapshot = await getDocs(artisansCollection);
+    const artisanList = artisanSnapshot.docs.map(doc => {
+      const data = doc.data();
+      const createdAt = data.createdAt as Timestamp;
+      return {
+        id: doc.id,
+        name: data.fullName, // The form saves 'fullName'
+        category: data.category,
+        joined: createdAt ? createdAt.toDate().toLocaleDateString() : new Date().toLocaleDateString(),
+        status: data.status,
+      };
+    });
+    return artisanList;
+}
+
 export default async function AdminPage() {
   const users = await getUsers();
+  const artisans = await getArtisans();
   
   return (
     <div>
