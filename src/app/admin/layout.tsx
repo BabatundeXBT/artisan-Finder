@@ -1,3 +1,6 @@
+
+'use client';
+
 import type { ReactNode } from "react";
 import Link from 'next/link';
 import { SidebarProvider, Sidebar, SidebarTrigger, SidebarContent, SidebarHeader, SidebarMenu, SidebarMenuItem, SidebarMenuButton } from "@/components/ui/sidebar";
@@ -5,6 +8,9 @@ import Logo from "@/components/shared/Logo";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Users, Briefcase, CheckSquare, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { signOut } from "firebase/auth";
+import { auth } from "@/lib/firebase";
+import { useRouter } from "next/navigation";
 
 const adminNavLinks = [
     { href: "/admin", label: "Users", icon: Users },
@@ -13,6 +19,13 @@ const adminNavLinks = [
 ];
 
 export default function AdminLayout({ children }: { children: ReactNode }) {
+    const router = useRouter();
+
+    const handleLogout = async () => {
+        await signOut(auth);
+        router.push('/auth/login');
+    };
+    
     // A real app would protect this route
     return (
         <SidebarProvider>
@@ -44,10 +57,8 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
                                     <p className="font-semibold text-sm">Admin User</p>
                                     <p className="text-xs text-muted-foreground">admin@artisandirect.com</p>
                                 </div>
-                                <Button variant="ghost" size="icon" asChild>
-                                  <Link href="/">
+                                <Button variant="ghost" size="icon" onClick={handleLogout}>
                                     <LogOut className="h-4 w-4" />
-                                  </Link>
                                 </Button>
                             </div>
                         </div>
