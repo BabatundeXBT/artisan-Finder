@@ -24,6 +24,11 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { categories } from '@/lib/placeholder-data';
 import Logo from '@/components/shared/Logo';
+import { useAuth } from '@/hooks/use-auth';
+import { useRouter } from 'next/navigation';
+import { useToast } from '@/hooks/use-toast';
+import { doc, setDoc, serverTimestamp } from 'firebase/firestore';
+import { db } from '@/lib/firebase';
 
 const formSchema = z.object({
   fullName: z.string().min(2, { message: 'Name must be at least 2 characters.' }),
@@ -37,6 +42,10 @@ const formSchema = z.object({
 });
 
 export default function ArtisanRegisterPage() {
+  const { user } = useAuth();
+  const router = useRouter();
+  const { toast } = useToast();
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -50,9 +59,44 @@ export default function ArtisanRegisterPage() {
     },
   });
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log(values);
-    // Handle artisan registration logic here
+  async function onSubmit(values: z.infer<typeof formSchema>) {
+    if (!user) {
+        toast({
+            variant: 'destructive',
+            title: 'Not Authenticated',
+            description: 'You must be logged in to register as an artisan.',
+        });
+        return;
+    }
+
+    try {
+        const artisanRef = doc(db, 'artisans', user.uid);
+        await setDoc(artisanRef, {
+            ...values,
+            userId: user.uid,
+            status: 'Pending Approval',
+            createdAt: serverTimestamp(),
+            // Add placeholders for fields that are set later
+            rating: 0,
+            reviewsCount: 0,
+            imageUrl: 'https://placehold.co/600x400.png',
+        });
+        
+        toast({
+            title: 'Registration Submitted!',
+            description: 'Your application is under review. We will notify you once it is approved.',
+        });
+
+        router.push('/dashboard');
+
+    } catch (error) {
+        console.error("Error creating artisan profile: ", error);
+        toast({
+            variant: 'destructive',
+            title: 'Uh oh! Something went wrong.',
+            description: 'There was a problem submitting your registration.',
+        });
+    }
   }
 
   return (
@@ -137,8 +181,8 @@ export default function ArtisanRegisterPage() {
               )} />
               
               <div className="flex justify-end">
-                <Button type="submit" size="lg" className="bg-accent hover:bg-accent/90 text-accent-foreground font-bold">
-                  Submit for Approval
+                <Button type="submit" size="lg" className="bg-accent hover:bg-accent/90 text-accent-foreground font-bold" disabled={form.formState.isSubmitting}>
+                  {form.formState.isSubmitting ? 'Submitting...' : 'Submit for Approval'}
                 </Button>
               </div>
             </form>
