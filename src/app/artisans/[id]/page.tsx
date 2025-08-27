@@ -1,3 +1,4 @@
+
 'use client';
 
 import Image from 'next/image';
@@ -12,14 +13,29 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import ReviewCard from '@/components/artisans/ReviewCard';
 import { AuthGuard, useAuth } from '@/hooks/use-auth';
 import React from 'react';
-import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
+import { collection, addDoc, serverTimestamp, getDocs, query, where } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { useToast } from '@/hooks/use-toast';
+import { Review } from '@/lib/types';
+import WriteReviewDialog from '@/components/artisans/WriteReviewDialog';
 
 function ArtisanProfilePageContent({ params }: { params: { id: string } }) {
   const artisan = artisanData.find((a) => a.id === params.id);
   const { user } = useAuth();
   const { toast } = useToast();
+  const [reviews, setReviews] = React.useState<Review[]>(artisan?.reviews || []);
+
+  React.useEffect(() => {
+    const fetchReviews = async () => {
+      if (!artisan) return;
+      const q = query(collection(db, "reviews"), where("artisanId", "==", artisan.id));
+      const querySnapshot = await getDocs(q);
+      const fetchedReviews = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Review));
+      setReviews(fetchedReviews);
+    };
+    fetchReviews();
+  }, [artisan]);
+
 
   if (!artisan) {
     notFound();
@@ -59,6 +75,10 @@ function ArtisanProfilePageContent({ params }: { params: { id: string } }) {
     }
   };
 
+  const handleReviewSubmitted = (newReview: Review) => {
+    setReviews([newReview, ...reviews]);
+  };
+
   return (
     <div className="container mx-auto max-w-6xl py-8 md:py-12 px-4">
       {/* Header Section */}
@@ -84,7 +104,7 @@ function ArtisanProfilePageContent({ params }: { params: { id: string } }) {
               <Star className="h-5 w-5 mr-1.5 fill-current" />
               <span>{artisan.rating.toFixed(1)}</span>
             </div>
-            <span className="text-muted-foreground ml-2">({artisan.reviewsCount} reviews)</span>
+            <span className="text-muted-foreground ml-2">({artisan.reviewsCount + reviews.length} reviews)</span>
           </div>
           <p className="mt-4 text-foreground/80 max-w-prose">{artisan.bio}</p>
           <div className="mt-6 flex flex-wrap gap-4">
@@ -140,19 +160,19 @@ function ArtisanProfilePageContent({ params }: { params: { id: string } }) {
           </div>
         </TabsContent>
         <TabsContent value="reviews" className="mt-6">
-          <h2 className="text-2xl font-headline font-semibold mb-6">Feedback from Clients</h2>
-          {artisan.reviews.length > 0 ? (
+          <div className="flex justify-between items-center mb-6">
+            <h2 className="text-2xl font-headline font-semibold">Feedback from Clients</h2>
+            <WriteReviewDialog artisan={artisan} onReviewSubmitted={handleReviewSubmitted} />
+          </div>
+          {reviews.length > 0 ? (
             <div className="space-y-6">
-              {artisan.reviews.map((review) => (
+              {reviews.map((review) => (
                 <ReviewCard key={review.id} review={review} />
               ))}
             </div>
           ) : (
             <p className="text-muted-foreground">This artisan doesn't have any reviews yet.</p>
           )}
-          <div className="mt-8">
-             <Button>Write a Review</Button>
-          </div>
         </TabsContent>
       </Tabs>
     </div>

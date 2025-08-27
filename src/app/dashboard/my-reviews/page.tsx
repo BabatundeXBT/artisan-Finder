@@ -15,15 +15,8 @@ import { useAuth, AuthGuard } from '@/hooks/use-auth';
 import { collection, query, where, getDocs } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { useEffect, useState } from 'react';
+import type { Review } from '@/lib/types';
 
-interface Review {
-  id: string;
-  artisanName: string;
-  artisanId: string;
-  rating: number;
-  comment: string;
-  date: string;
-}
 
 const StarRating = ({ rating }: { rating: number }) => (
     <div className="flex items-center">

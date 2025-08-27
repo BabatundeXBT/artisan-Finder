@@ -1,3 +1,4 @@
+
 import type { LucideIcon } from 'lucide-react';
 
 export interface Artisan {
@@ -23,6 +24,8 @@ export interface Review {
   rating: number;
   comment: string;
   date: string;
+  artisanId?: string;
+  artisanName?: string;
 }
 
 export interface Category {
