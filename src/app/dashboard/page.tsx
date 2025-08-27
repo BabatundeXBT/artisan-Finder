@@ -5,13 +5,20 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { User, ShoppingCart, Edit } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
-import { doc, getDoc } from "firebase/firestore";
+import { collection, doc, getDoc, getDocs, query, where } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { useEffect, useState } from "react";
+
+interface Order {
+    id: string;
+    status: string;
+}
 
 export default function DashboardPage() {
   const { user } = useAuth();
   const [userData, setUserData] = useState<{fullName: string, email: string} | null>(null);
+  const [orders, setOrders] = useState<Order[]>([]);
+  const [loadingOrders, setLoadingOrders] = useState(true);
 
   useEffect(() => {
     if (user) {
@@ -21,10 +28,24 @@ export default function DashboardPage() {
           setUserData(userDoc.data() as {fullName: string, email: string});
         }
       };
+
+      const fetchOrders = async () => {
+        setLoadingOrders(true);
+        const q = query(collection(db, "orders"), where("userId", "==", user.uid));
+        const querySnapshot = await getDocs(q);
+        const userOrders = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Order));
+        setOrders(userOrders);
+        setLoadingOrders(false);
+      };
+
       fetchUserData();
+      fetchOrders();
     }
   }, [user]);
 
+  const activeOrders = orders.filter(o => o.status === 'Pending' || o.status === 'In Progress');
+  const pendingCount = orders.filter(o => o.status === 'Pending').length;
+  const inProgressCount = orders.filter(o => o.status === 'In Progress').length;
 
   return (
     <div>
@@ -51,8 +72,14 @@ export default function DashboardPage() {
             <ShoppingCart className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">3</div>
-            <p className="text-xs text-muted-foreground">2 pending, 1 in progress</p>
+            {loadingOrders ? (
+                 <div className="text-2xl font-bold">Loading...</div>
+            ) : (
+                <>
+                    <div className="text-2xl font-bold">{activeOrders.length}</div>
+                    <p className="text-xs text-muted-foreground">{pendingCount} pending, {inProgressCount} in progress</p>
+                </>
+            )}
              <Button variant="outline" size="sm" className="mt-4" asChild>
                 <Link href="/dashboard/artisan">
                     View Orders
