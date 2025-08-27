@@ -10,6 +10,7 @@ import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/use-auth";
 import { auth } from "@/lib/firebase";
 import { signOut } from "firebase/auth";
+import { useRouter } from "next/navigation";
 
 const navLinks = [
   { href: "/search", label: "Find Artisans" },
@@ -19,6 +20,7 @@ const navLinks = [
 export default function Header() {
   const pathname = usePathname();
   const { isAuthenticated, isLoading } = useAuth();
+  const router = useRouter();
   
   const NavLink = ({ href, label }: { href: string, label: string }) => (
     <Link href={href}>
@@ -35,6 +37,7 @@ export default function Header() {
 
   const handleLogout = async () => {
     await signOut(auth);
+    router.push('/');
   };
 
   return (
