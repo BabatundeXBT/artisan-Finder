@@ -44,6 +44,17 @@ export default function LoginPage() {
   });
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
+    // Admin Login
+    if (values.email === 'admin@admin.com' && values.password === 'admin') {
+      toast({
+        title: "Admin Login Successful",
+        description: "Redirecting to the admin panel.",
+      });
+      router.push('/admin');
+      return;
+    }
+    
+    // Regular User Login
     try {
       await signInWithEmailAndPassword(auth, values.email, values.password);
       toast({
