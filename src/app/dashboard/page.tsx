@@ -83,7 +83,7 @@ export default function DashboardPage() {
                 </>
             )}
              <Button variant="outline" size="sm" className="mt-4" asChild>
-                <Link href="#">
+                <Link href="/dashboard/my-requests">
                     View My Requests
                 </Link>
             </Button>
