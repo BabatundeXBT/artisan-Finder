@@ -67,7 +67,7 @@ export default function ContactPage() {
                 <div className="bg-primary/10 text-primary p-3 rounded-full"><MapPin className="h-6 w-6"/></div>
                 <div>
                     <h3 className="text-xl font-semibold">Our Office</h3>
-                    <p className="text-muted-foreground">123 Craftsmanship Ave,<br/>Suite 100, Makersville, 12345</p>
+                    <p className="text-muted-foreground">Bayero University Kano</p>
                 </div>
             </div>
         </div>
