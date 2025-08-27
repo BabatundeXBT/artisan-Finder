@@ -13,7 +13,7 @@ export default function TermsPage() {
         
         <h2>2. Use of the Service</h2>
         <p>
-          Artisan Direct provides a platform for clients to connect with artisans. We are not a party to any agreement between clients and artisans. You must be at least 18 years old to use our services.
+          Artisan Finder provides a platform for clients to connect with artisans. We are not a party to any agreement between clients and artisans. You must be at least 18 years old to use our services.
         </p>
 
         <h2>3. User Accounts</h2>
@@ -33,12 +33,12 @@ export default function TermsPage() {
 
         <h2>6. Limitation of Liability</h2>
         <p>
-          In no event shall Artisan Direct, nor its directors, employees, partners, agents, suppliers, or affiliates, be liable for any indirect, incidental, special, consequential or punitive damages, including without limitation, loss of profits, data, use, goodwill, or other intangible losses, resulting from your access to or use of or inability to access or use the service.
+          In no event shall Artisan Finder, nor its directors, employees, partners, agents, suppliers, or affiliates, be liable for any indirect, incidental, special, consequential or punitive damages, including without limitation, loss of profits, data, use, goodwill, or other intangible losses, resulting from your access to or use of or inability to access or use the service.
         </p>
         
         <h2>Contact Us</h2>
         <p>
-          If you have any questions about these Terms, please contact us at <a href="mailto:legal@artisandirect.com">legal@artisandirect.com</a>.
+          If you have any questions about these Terms, please contact us at <a href="mailto:legal@artisanfinder.com">legal@artisanfinder.com</a>.
         </p>
       </div>
     </div>

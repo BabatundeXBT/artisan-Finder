@@ -8,7 +8,7 @@ export default function PrivacyPage() {
 
         <h2>Introduction</h2>
         <p>
-          Artisan Direct ("we," "our," or "us") is committed to protecting your privacy. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you use our website and services.
+          Artisan Finder ("we," "our," or "us") is committed to protecting your privacy. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you use our website and services.
         </p>
 
         <h2>Information We Collect</h2>
@@ -46,7 +46,7 @@ export default function PrivacyPage() {
 
         <h2>Contact Us</h2>
         <p>
-          If you have any questions or concerns about this Privacy Policy, please contact us at <a href="mailto:privacy@artisandirect.com">privacy@artisandirect.com</a>.
+          If you have any questions or concerns about this Privacy Policy, please contact us at <a href="mailto:privacy@artisanfinder.com">privacy@artisanfinder.com</a>.
         </p>
       </div>
     </div>

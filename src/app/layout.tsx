@@ -7,7 +7,7 @@ import { AuthProvider } from "@/hooks/use-auth";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Artisan Direct",
+  title: "Artisan Finder",
   description: "Find and connect with skilled artisans near you.",
 };
 

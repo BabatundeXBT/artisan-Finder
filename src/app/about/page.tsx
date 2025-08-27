@@ -7,7 +7,7 @@ export default function AboutPage() {
     <div className="container mx-auto max-w-5xl py-12 md:py-20 px-4">
       <div className="text-center">
         <h1 className="text-4xl md:text-5xl font-headline font-bold text-foreground">
-          About Artisan Direct
+          About Artisan Finder
         </h1>
         <p className="mt-4 text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto">
           Our mission is to bridge the gap between talented artisans and clients seeking high-quality, custom work, celebrating craftsmanship and tradition.
@@ -33,7 +33,7 @@ export default function AboutPage() {
             <h2 className="text-3xl font-headline font-semibold mb-4">Our Story</h2>
             <div className="space-y-4 text-foreground/80">
                 <p>
-                Artisan Direct was born from a simple idea: to make it easy for anyone to find and hire skilled craftspeople. In a world of mass production, we saw a growing desire for unique, handcrafted goods and personalized services. We wanted to create a space where the rich traditions of craftsmanship could thrive and be easily accessible.
+                Artisan Finder was born from a simple idea: to make it easy for anyone to find and hire skilled craftspeople. In a world of mass production, we saw a growing desire for unique, handcrafted goods and personalized services. We wanted to create a space where the rich traditions of craftsmanship could thrive and be easily accessible.
                 </p>
                 <p>
                 We are a passionate team dedicated to supporting local artisans and small businesses. We believe in the power of handmade and the value of a personal touch. By connecting you with these professionals, we hope to foster a community that values quality, creativity, and expertise.
