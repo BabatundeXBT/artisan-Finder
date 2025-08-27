@@ -31,9 +31,8 @@ interface User {
     id: string;
     fullName: string;
     email: string;
-    // Assuming these fields will be added later
-    joined?: string;
-    status?: 'Active' | 'Suspended';
+    joined: string;
+    status: 'Active' | 'Suspended';
 }
 
 interface Artisan {
@@ -44,23 +43,23 @@ interface Artisan {
     status: 'Approved' | 'Pending Approval';
 }
 
-// NOTE: In a real app, you'd fetch this from your database
-const artisans: Artisan[] = [
-    // { id: 'ART001', name: 'Elena Garcia', category: 'Carpenter', joined: '2023-05-10', status: 'Approved' },
-    // { id: 'ART002', name: 'David Chen', category: 'Plumber', joined: '2023-04-02', status: 'Approved' },
-    // { id: 'ART003', name: 'New Artisan', category: 'Painter', joined: '2023-10-25', status: 'Pending Approval' },
-];
+// NOTE: This will be replaced with a database call once artisan registration is implemented
+const artisans: Artisan[] = [];
 
 async function getUsers(): Promise<User[]> {
     const usersCollection = collection(db, 'users');
     const userSnapshot = await getDocs(usersCollection);
-    const userList = userSnapshot.docs.map(doc => ({
+    const userList = userSnapshot.docs.map(doc => {
+      const data = doc.data();
+      return {
         id: doc.id,
-        fullName: doc.data().fullName,
-        email: doc.data().email,
-        joined: new Date().toLocaleDateString(), // Placeholder
-        status: 'Active' // Placeholder
-    }));
+        fullName: data.fullName,
+        email: data.email,
+        // Placeholders - to be implemented
+        joined: new Date().toLocaleDateString(), 
+        status: 'Active' 
+      };
+    });
     return userList;
 }
 
@@ -199,7 +198,7 @@ function AdminActions({ isApproval = false }: { isApproval?: boolean}) {
                     <>
                         <DropdownMenuItem>View Profile</DropdownMenuItem>
                         <DropdownMenuItem>Suspend</DropdownMenuItem>
-                        <DropdownMenuItem className="text-red-500">Delete</DropdownMenuItem>
+                        <DropdownMenuItem className="text-destructive">Delete</DropdownMenuItem>
                     </>
                 )}
             </DropdownMenuContent>
