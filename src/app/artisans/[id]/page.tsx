@@ -1,25 +1,63 @@
-
 'use client';
 
 import Image from 'next/image';
 import { artisanData } from '@/lib/placeholder-data';
 import { notFound } from 'next/navigation';
-import { Star, MapPin, Award, ShieldCheck, MessageSquare } from 'lucide-react';
+import { Star, MapPin, Award, MessageSquare } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import ReviewCard from '@/components/artisans/ReviewCard';
-import { AuthGuard } from '@/hooks/use-auth';
+import { AuthGuard, useAuth } from '@/hooks/use-auth';
 import React from 'react';
+import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
+import { db } from '@/lib/firebase';
+import { useToast } from '@/hooks/use-toast';
 
 function ArtisanProfilePageContent({ params }: { params: { id: string } }) {
   const artisan = artisanData.find((a) => a.id === params.id);
+  const { user } = useAuth();
+  const { toast } = useToast();
 
   if (!artisan) {
     notFound();
   }
+
+  const handleRequestService = async () => {
+    if (!user) {
+      toast({
+        variant: 'destructive',
+        title: 'Not Logged In',
+        description: 'You must be logged in to request a service.',
+      });
+      return;
+    }
+
+    try {
+      await addDoc(collection(db, 'orders'), {
+        userId: user.uid,
+        artisanId: artisan.id,
+        artisanName: artisan.name,
+        service: artisan.category, // Using category as a default service
+        date: new Date().toLocaleDateString(),
+        status: 'Pending',
+        createdAt: serverTimestamp(),
+      });
+      toast({
+        title: 'Request Sent!',
+        description: `Your request has been sent to ${artisan.name}.`,
+      });
+    } catch (error) {
+      console.error('Error creating service request: ', error);
+      toast({
+        variant: 'destructive',
+        title: 'Uh oh! Something went wrong.',
+        description: 'There was a problem sending your request.',
+      });
+    }
+  };
 
   return (
     <div className="container mx-auto max-w-6xl py-8 md:py-12 px-4">
@@ -50,7 +88,7 @@ function ArtisanProfilePageContent({ params }: { params: { id: string } }) {
           </div>
           <p className="mt-4 text-foreground/80 max-w-prose">{artisan.bio}</p>
           <div className="mt-6 flex flex-wrap gap-4">
-            <Button size="lg" className="bg-accent hover:bg-accent/90 text-accent-foreground font-bold">Request Service</Button>
+            <Button size="lg" className="bg-accent hover:bg-accent/90 text-accent-foreground font-bold" onClick={handleRequestService}>Request Service</Button>
             <Button size="lg" variant="outline">
               <MessageSquare className="mr-2 h-5 w-5" /> Contact Artisan
             </Button>
