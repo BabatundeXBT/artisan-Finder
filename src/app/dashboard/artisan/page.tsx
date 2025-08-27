@@ -1,3 +1,5 @@
+'use client';
+
 import {
   Card,
   CardContent,
@@ -15,7 +17,7 @@ import {
 } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { MoreHorizontal } from 'lucide-react';
+import { MoreHorizontal, Loader2 } from 'lucide-react';
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -23,15 +25,39 @@ import {
     DropdownMenuLabel,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import { useAuth } from '@/hooks/use-auth';
+import { collection, query, where, getDocs } from 'firebase/firestore';
+import { db } from '@/lib/firebase';
+import { useEffect, useState } from 'react';
 
-const orders = [
-    { id: 'ORD001', client: 'Alice Johnson', service: 'Custom Bookshelf', date: '2023-10-26', status: 'In Progress' },
-    { id: 'ORD002', client: 'Bob Williams', service: 'Interior Painting - Living Room', date: '2023-10-24', status: 'Completed' },
-    { id: 'ORD003', client: 'Charlie Brown', service: 'Leaky Faucet Repair', date: '2023-10-22', status: 'Pending' },
-    { id: 'ORD004', client: 'Diana Prince', service: 'Suit Alterations', date: '2023-10-20', status: 'Completed' },
-];
+interface Order {
+  id: string;
+  client: string;
+  service: string;
+  date: string;
+  status: string;
+}
 
 export default function ArtisanOrdersPage() {
+    const { user } = useAuth();
+    const [orders, setOrders] = useState<Order[]>([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        if (user) {
+            const fetchOrders = async () => {
+                setLoading(true);
+                // Assuming orders collection has a field 'artisanId'
+                const q = query(collection(db, "orders"), where("artisanId", "==", user.uid));
+                const querySnapshot = await getDocs(q);
+                const fetchedOrders = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Order));
+                setOrders(fetchedOrders);
+                setLoading(false);
+            };
+            fetchOrders();
+        }
+    }, [user]);
+
     const getStatusVariant = (status: string) => {
         switch (status) {
             case 'Completed': return 'default';
@@ -50,6 +76,11 @@ export default function ArtisanOrdersPage() {
           <CardDescription>A list of your recent and ongoing jobs.</CardDescription>
         </CardHeader>
         <CardContent>
+          {loading ? (
+            <div className="flex justify-center items-center h-64">
+                <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+            </div>
+          ) : (
           <Table>
             <TableHeader>
               <TableRow>
@@ -64,34 +95,43 @@ export default function ArtisanOrdersPage() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {orders.map((order) => (
-                <TableRow key={order.id}>
-                  <TableCell className="font-medium">{order.id}</TableCell>
-                  <TableCell>{order.client}</TableCell>
-                  <TableCell>{order.service}</TableCell>
-                  <TableCell>
-                    <Badge variant={getStatusVariant(order.status) as any}>{order.status}</Badge>
-                  </TableCell>
-                  <TableCell>{order.date}</TableCell>
-                  <TableCell>
-                     <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button aria-haspopup="true" size="icon" variant="ghost">
-                          <MoreHorizontal className="h-4 w-4" />
-                          <span className="sr-only">Toggle menu</span>
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                        <DropdownMenuItem>View Details</DropdownMenuItem>
-                        <DropdownMenuItem>Contact Client</DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </TableCell>
+              {orders.length > 0 ? (
+                orders.map((order) => (
+                    <TableRow key={order.id}>
+                    <TableCell className="font-medium">{order.id}</TableCell>
+                    <TableCell>{order.client}</TableCell>
+                    <TableCell>{order.service}</TableCell>
+                    <TableCell>
+                        <Badge variant={getStatusVariant(order.status) as any}>{order.status}</Badge>
+                    </TableCell>
+                    <TableCell>{order.date}</TableCell>
+                    <TableCell>
+                        <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                            <Button aria-haspopup="true" size="icon" variant="ghost">
+                            <MoreHorizontal className="h-4 w-4" />
+                            <span className="sr-only">Toggle menu</span>
+                            </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                            <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                            <DropdownMenuItem>View Details</DropdownMenuItem>
+                            <DropdownMenuItem>Contact Client</DropdownMenuItem>
+                        </DropdownMenuContent>
+                        </DropdownMenu>
+                    </TableCell>
+                    </TableRow>
+                ))
+              ) : (
+                <TableRow>
+                    <TableCell colSpan={6} className="text-center h-24">
+                        You have no orders yet.
+                    </TableCell>
                 </TableRow>
-              ))}
+              )}
             </TableBody>
           </Table>
+          )}
         </CardContent>
       </Card>
     </div>
