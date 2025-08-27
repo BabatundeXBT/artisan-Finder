@@ -1,3 +1,4 @@
+
 import {
   Card,
   CardContent,
@@ -23,20 +24,49 @@ import {
     DropdownMenuItem,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import { collection, getDocs } from 'firebase/firestore';
+import { db } from '@/lib/firebase';
 
-const users = [
-    { id: 'USR001', name: 'Alice Johnson', email: 'alice@example.com', joined: '2023-10-01', status: 'Active' },
-    { id: 'USR002', name: 'Bob Williams', email: 'bob@example.com', joined: '2023-09-15', status: 'Active' },
-    { id: 'USR003', name: 'Charlie Brown', email: 'charlie@example.com', joined: '2023-08-22', status: 'Suspended' },
+interface User {
+    id: string;
+    fullName: string;
+    email: string;
+    // Assuming these fields will be added later
+    joined?: string;
+    status?: 'Active' | 'Suspended';
+}
+
+interface Artisan {
+    id: string;
+    name: string;
+    category: string;
+    joined: string;
+    status: 'Approved' | 'Pending Approval';
+}
+
+// NOTE: In a real app, you'd fetch this from your database
+const artisans: Artisan[] = [
+    // { id: 'ART001', name: 'Elena Garcia', category: 'Carpenter', joined: '2023-05-10', status: 'Approved' },
+    // { id: 'ART002', name: 'David Chen', category: 'Plumber', joined: '2023-04-02', status: 'Approved' },
+    // { id: 'ART003', name: 'New Artisan', category: 'Painter', joined: '2023-10-25', status: 'Pending Approval' },
 ];
 
-const artisans = [
-    { id: 'ART001', name: 'Elena Garcia', category: 'Carpenter', joined: '2023-05-10', status: 'Approved' },
-    { id: 'ART002', name: 'David Chen', category: 'Plumber', joined: '2023-04-02', status: 'Approved' },
-    { id: 'ART003', name: 'New Artisan', category: 'Painter', joined: '2023-10-25', status: 'Pending Approval' },
-];
+async function getUsers(): Promise<User[]> {
+    const usersCollection = collection(db, 'users');
+    const userSnapshot = await getDocs(usersCollection);
+    const userList = userSnapshot.docs.map(doc => ({
+        id: doc.id,
+        fullName: doc.data().fullName,
+        email: doc.data().email,
+        joined: new Date().toLocaleDateString(), // Placeholder
+        status: 'Active' // Placeholder
+    }));
+    return userList;
+}
 
-export default function AdminPage() {
+export default async function AdminPage() {
+  const users = await getUsers();
+  
   return (
     <div>
       <h1 className="text-3xl font-headline font-bold mb-6">Admin Panel</h1>
@@ -84,7 +114,7 @@ export default function AdminPage() {
   );
 }
 
-function UserTable({ data }: { data: typeof users }) {
+function UserTable({ data }: { data: User[] }) {
     return (
         <Table>
             <TableHeader>
@@ -97,9 +127,9 @@ function UserTable({ data }: { data: typeof users }) {
                 </TableRow>
             </TableHeader>
             <TableBody>
-                {data.map(user => (
+                {data.length > 0 ? data.map(user => (
                     <TableRow key={user.id}>
-                        <TableCell className="font-medium">{user.name}</TableCell>
+                        <TableCell className="font-medium">{user.fullName}</TableCell>
                         <TableCell>{user.email}</TableCell>
                         <TableCell>{user.joined}</TableCell>
                         <TableCell><Badge variant={user.status === 'Active' ? 'secondary' : 'destructive'}>{user.status}</Badge></TableCell>
@@ -107,13 +137,17 @@ function UserTable({ data }: { data: typeof users }) {
                             <AdminActions />
                         </TableCell>
                     </TableRow>
-                ))}
+                )) : (
+                    <TableRow>
+                        <TableCell colSpan={5} className="text-center h-24">No users found.</TableCell>
+                    </TableRow>
+                )}
             </TableBody>
         </Table>
     )
 }
 
-function ArtisanTable({ data }: { data: typeof artisans }) {
+function ArtisanTable({ data }: { data: Artisan[] }) {
     return (
         <Table>
             <TableHeader>
@@ -126,7 +160,7 @@ function ArtisanTable({ data }: { data: typeof artisans }) {
                 </TableRow>
             </TableHeader>
             <TableBody>
-                {data.map(artisan => (
+                {data.length > 0 ? data.map(artisan => (
                     <TableRow key={artisan.id}>
                         <TableCell className="font-medium">{artisan.name}</TableCell>
                         <TableCell>{artisan.category}</TableCell>
@@ -136,7 +170,11 @@ function ArtisanTable({ data }: { data: typeof artisans }) {
                             <AdminActions isApproval={artisan.status === 'Pending Approval'}/>
                         </TableCell>
                     </TableRow>
-                ))}
+                )) : (
+                     <TableRow>
+                        <TableCell colSpan={5} className="text-center h-24">No artisans found.</TableCell>
+                    </TableRow>
+                )}
             </TableBody>
         </Table>
     )
