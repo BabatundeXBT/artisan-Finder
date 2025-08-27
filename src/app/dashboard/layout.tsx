@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { SidebarProvider, Sidebar, SidebarTrigger, SidebarContent, SidebarHeader, SidebarMenu, SidebarMenuItem, SidebarMenuButton } from "@/components/ui/sidebar";
 import Logo from "@/components/shared/Logo";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { User, ShoppingCart, LogOut, Settings } from "lucide-react";
+import { User, ShoppingCart, LogOut, Settings, Briefcase } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { AuthGuard, useAuth } from '@/hooks/use-auth';
 import { auth, db } from '@/lib/firebase';
@@ -15,24 +15,30 @@ import { doc, getDoc } from 'firebase/firestore';
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
-const dashboardNavLinks = [
+const baseNavLinks = [
     { href: "/dashboard", label: "Overview", icon: User },
     { href: "/dashboard/profile", label: "My Profile", icon: Settings },
-    { href: "/dashboard/artisan", label: "My Orders", icon: ShoppingCart },
 ];
 
 function DashboardLayoutContent({ children }: { children: ReactNode }) {
     const { user } = useAuth();
     const router = useRouter();
     const [userData, setUserData] = useState<{fullName: string, email: string} | null>(null);
+    const [isArtisan, setIsArtisan] = useState(false);
 
     useEffect(() => {
         if (user) {
             const fetchUserData = async () => {
-                const userDoc = await getDoc(doc(db, "users", user.uid));
+                const userDocRef = doc(db, "users", user.uid);
+                const userDoc = await getDoc(userDocRef);
                 if (userDoc.exists()) {
                     setUserData(userDoc.data() as {fullName: string, email: string});
                 }
+                
+                // Check if the user is also an artisan
+                const artisanDocRef = doc(db, "artisans", user.uid);
+                const artisanDoc = await getDoc(artisanDocRef);
+                setIsArtisan(artisanDoc.exists());
             };
             fetchUserData();
         }
@@ -42,6 +48,12 @@ function DashboardLayoutContent({ children }: { children: ReactNode }) {
         await signOut(auth);
         router.push('/');
     };
+
+    const artisanNavLink = isArtisan 
+        ? { href: "/dashboard/my-orders", label: "My Orders", icon: ShoppingCart }
+        : { href: "/dashboard/artisan", label: "Become an Artisan", icon: Briefcase };
+        
+    const dashboardNavLinks = [...baseNavLinks, artisanNavLink];
 
     return (
         <SidebarProvider>
