@@ -79,10 +79,10 @@ export default function Header() {
                 ) : (
                   <>
                     <Button variant="outline" asChild>
-                        <Link href="/login">Login</Link>
+                        <Link href="/auth/login">Login</Link>
                     </Button>
                     <Button asChild className="bg-accent hover:bg-accent/90 text-accent-foreground">
-                        <Link href="/signup">Sign Up</Link>
+                        <Link href="/auth/signup">Sign Up</Link>
                     </Button>
                   </>
                 )}

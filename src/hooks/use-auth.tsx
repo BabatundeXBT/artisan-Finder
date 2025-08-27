@@ -43,7 +43,7 @@ export const useAuth = () => {
     return useContext(AuthContext);
 }
 
-const publicRoutes = ['/login', '/signup', '/'];
+const publicRoutes = ['/auth/login', '/auth/signup', '/'];
 
 export function AuthGuard({ children }: { children: ReactNode }) {
     const { isAuthenticated, isLoading } = useAuth();
@@ -52,7 +52,7 @@ export function AuthGuard({ children }: { children: ReactNode }) {
 
     useEffect(() => {
         if (!isLoading && !isAuthenticated && !publicRoutes.includes(pathname)) {
-            router.push('/login');
+            router.push('/auth/login');
         }
     }, [isAuthenticated, isLoading, router, pathname]);
     
