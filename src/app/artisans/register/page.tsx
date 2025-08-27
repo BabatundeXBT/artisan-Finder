@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useForm } from 'react-hook-form';
@@ -68,6 +69,9 @@ export default function ArtisanRegisterPage() {
         });
         return;
     }
+    
+    // Redirect immediately for a better user experience
+    router.push('/dashboard');
 
     try {
         const artisanRef = doc(db, 'artisans', user.uid);
@@ -82,12 +86,11 @@ export default function ArtisanRegisterPage() {
             imageUrl: 'https://placehold.co/600x400.png',
         });
         
+        // Show the toast after the redirect has happened
         toast({
             title: 'Registration Submitted!',
             description: 'Your application is under review. We will notify you once it is approved.',
         });
-
-        router.push('/dashboard');
 
     } catch (error) {
         console.error("Error creating artisan profile: ", error);
