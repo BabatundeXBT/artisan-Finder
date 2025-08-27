@@ -9,39 +9,44 @@ import { useAuth } from "@/hooks/use-auth";
 import { collection, doc, getDoc, getDocs, query, where } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { useEffect, useState } from "react";
+import { AuthGuard } from "@/hooks/use-auth";
 
 interface Order {
     id: string;
     status: string;
 }
 
-export default function DashboardPage() {
+function DashboardPageContent() {
   const { user } = useAuth();
   const [userData, setUserData] = useState<{fullName: string, email: string} | null>(null);
   const [orders, setOrders] = useState<Order[]>([]);
-  const [loadingOrders, setLoadingOrders] = useState(true);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (user) {
-      const fetchUserData = async () => {
-        const userDoc = await getDoc(doc(db, "users", user.uid));
-        if (userDoc.exists()) {
-          setUserData(userDoc.data() as {fullName: string, email: string});
+      const fetchData = async () => {
+        setLoading(true);
+        try {
+          // Fetch user data
+          const userDoc = await getDoc(doc(db, "users", user.uid));
+          if (userDoc.exists()) {
+            setUserData(userDoc.data() as {fullName: string, email: string});
+          }
+
+          // Fetch orders
+          const q = query(collection(db, "orders"), where("userId", "==", user.uid));
+          const querySnapshot = await getDocs(q);
+          const userOrders = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Order));
+          setOrders(userOrders);
+
+        } catch (error) {
+          console.error("Error fetching dashboard data: ", error);
+        } finally {
+          setLoading(false);
         }
       };
 
-      const fetchOrders = async () => {
-        setLoadingOrders(true);
-        // This should probably query based on client ID, not artisan ID
-        const q = query(collection(db, "orders"), where("userId", "==", user.uid));
-        const querySnapshot = await getDocs(q);
-        const userOrders = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Order));
-        setOrders(userOrders);
-        setLoadingOrders(false);
-      };
-
-      fetchUserData();
-      fetchOrders();
+      fetchData();
     }
   }, [user]);
 
@@ -59,8 +64,14 @@ export default function DashboardPage() {
             <User className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{userData?.fullName || 'Loading...'}</div>
-            <p className="text-xs text-muted-foreground">{userData?.email || '...'}</p>
+            {loading ? (
+              <div className="text-2xl font-bold">Loading...</div>
+            ) : (
+               <>
+                <div className="text-2xl font-bold">{userData?.fullName}</div>
+                <p className="text-xs text-muted-foreground">{userData?.email}</p>
+               </>
+            )}
              <Button variant="outline" size="sm" className="mt-4" asChild>
                 <Link href="/dashboard/profile">
                     <Edit className="mr-2 h-4 w-4" /> Edit Profile
@@ -74,7 +85,7 @@ export default function DashboardPage() {
             <ShoppingCart className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            {loadingOrders ? (
+            {loading ? (
                  <div className="text-2xl font-bold">Loading...</div>
             ) : (
                 <>
@@ -92,4 +103,12 @@ export default function DashboardPage() {
       </div>
     </div>
   );
+}
+
+export default function DashboardPage() {
+    return (
+        <AuthGuard>
+            <DashboardPageContent />
+        </AuthGuard>
+    )
 }
