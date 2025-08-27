@@ -13,7 +13,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import ReviewCard from '@/components/artisans/ReviewCard';
 import { AuthGuard, useAuth } from '@/hooks/use-auth';
 import React from 'react';
-import { collection, addDoc, serverTimestamp, getDocs, query, where } from 'firebase/firestore';
+import { collection, addDoc, serverTimestamp, getDocs, query, where, doc, getDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { useToast } from '@/hooks/use-toast';
 import { Review } from '@/lib/types';
@@ -23,15 +23,34 @@ function ArtisanProfilePageContent({ params }: { params: { id: string } }) {
   const artisan = artisanData.find((a) => a.id === params.id);
   const { user } = useAuth();
   const { toast } = useToast();
-  const [reviews, setReviews] = React.useState<Review[]>(artisan?.reviews || []);
+  const [reviews, setReviews] = React.useState<Review[]>([]);
+  const [userData, setUserData] = React.useState<{fullName: string} | null>(null);
+
+   React.useEffect(() => {
+    if (user) {
+      const fetchUserData = async () => {
+        const userDoc = await getDoc(doc(db, 'users', user.uid));
+        if (userDoc.exists()) {
+          setUserData(userDoc.data() as {fullName: string});
+        }
+      };
+      fetchUserData();
+    }
+  }, [user]);
 
   React.useEffect(() => {
     const fetchReviews = async () => {
       if (!artisan) return;
       const q = query(collection(db, "reviews"), where("artisanId", "==", artisan.id));
       const querySnapshot = await getDocs(q);
-      const fetchedReviews = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Review));
-      setReviews(fetchedReviews);
+      const fetchedReviews: Review[] = [];
+      for (const doc of querySnapshot.docs) {
+          const reviewData = doc.data();
+          const userDoc = await getDoc(doc(db, "users", reviewData.userId));
+          const authorName = userDoc.exists() ? userDoc.data().fullName : 'Anonymous';
+          fetchedReviews.push({ id: doc.id, ...reviewData, author: authorName } as Review);
+      }
+      setReviews(fetchedReviews.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()));
     };
     fetchReviews();
   }, [artisan]);
@@ -76,8 +95,17 @@ function ArtisanProfilePageContent({ params }: { params: { id: string } }) {
   };
 
   const handleReviewSubmitted = (newReview: Review) => {
-    setReviews([newReview, ...reviews]);
+    // Add user's full name to the review object before adding to state
+    const reviewWithAuthor = {
+      ...newReview,
+      author: userData?.fullName || user?.displayName || 'Anonymous',
+      avatarUrl: user?.photoURL || 'https://placehold.co/100x100.png'
+    };
+    setReviews([reviewWithAuthor, ...reviews]);
   };
+  
+  const totalReviews = artisan.reviewsCount + reviews.length;
+
 
   return (
     <div className="container mx-auto max-w-6xl py-8 md:py-12 px-4">
@@ -104,7 +132,7 @@ function ArtisanProfilePageContent({ params }: { params: { id: string } }) {
               <Star className="h-5 w-5 mr-1.5 fill-current" />
               <span>{artisan.rating.toFixed(1)}</span>
             </div>
-            <span className="text-muted-foreground ml-2">({artisan.reviewsCount + reviews.length} reviews)</span>
+            <span className="text-muted-foreground ml-2">({totalReviews} reviews)</span>
           </div>
           <p className="mt-4 text-foreground/80 max-w-prose">{artisan.bio}</p>
           <div className="mt-6 flex flex-wrap gap-4">

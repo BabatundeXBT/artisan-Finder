@@ -16,7 +16,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Star } from 'lucide-react';
 import { useAuth } from '@/hooks/use-auth';
 import { useToast } from '@/hooks/use-toast';
-import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
+import { collection, addDoc, serverTimestamp, doc, getDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import type { Artisan, Review } from '@/lib/types';
 import { cn } from '@/lib/utils';
@@ -52,10 +52,12 @@ export default function WriteReviewDialog({ artisan, onReviewSubmitted }: WriteR
 
     setIsSubmitting(true);
     try {
+      const userDocRef = doc(db, 'users', user.uid);
+      const userDoc = await getDoc(userDocRef);
+      const userName = userDoc.exists() ? userDoc.data().fullName : 'Anonymous';
+
       const reviewData = {
         userId: user.uid,
-        userName: user.displayName || 'Anonymous',
-        userAvatar: user.photoURL || '',
         artisanId: artisan.id,
         artisanName: artisan.name,
         rating,
@@ -68,8 +70,8 @@ export default function WriteReviewDialog({ artisan, onReviewSubmitted }: WriteR
       
       const newReview: Review = {
         id: docRef.id,
-        author: reviewData.userName,
-        avatarUrl: reviewData.userAvatar,
+        author: userName,
+        avatarUrl: user.photoURL || 'https://placehold.co/100x100.png',
         ...reviewData,
       }
 
