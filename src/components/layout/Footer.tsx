@@ -1,3 +1,4 @@
+
 import Link from "next/link";
 import { Twitter, Facebook, Instagram } from "lucide-react";
 import Logo from "../shared/Logo";
@@ -29,23 +30,22 @@ export default function Footer() {
             <ul className="space-y-2 text-sm">
               <li><Link href="/search" className="text-muted-foreground hover:text-primary">Find an Artisan</Link></li>
               <li><Link href="/artisans/register" className="text-muted-foreground hover:text-primary">Join as an Artisan</Link></li>
-              <li><Link href="#" className="text-muted-foreground hover:text-primary">Categories</Link></li>
-              <li><Link href="#" className="text-muted-foreground hover:text-primary">Blog</Link></li>
+              <li><Link href="/search" className="text-muted-foreground hover:text-primary">Categories</Link></li>
             </ul>
           </div>
           <div>
             <h4 className="font-bold mb-4">Company</h4>
             <ul className="space-y-2 text-sm">
-              <li><Link href="#" className="text-muted-foreground hover:text-primary">About Us</Link></li>
-              <li><Link href="#" className="text-muted-foreground hover:text-primary">Contact</Link></li>
-              <li><Link href="#" className="text-muted-foreground hover:text-primary">Careers</Link></li>
+              <li><Link href="/about" className="text-muted-foreground hover:text-primary">About Us</Link></li>
+              <li><Link href="/contact" className="text-muted-foreground hover:text-primary">Contact</Link></li>
+              <li><Link href="/careers" className="text-muted-foreground hover:text-primary">Careers</Link></li>
             </ul>
           </div>
           <div>
             <h4 className="font-bold mb-4">Legal</h4>
             <ul className="space-y-2 text-sm">
-              <li><Link href="#" className="text-muted-foreground hover:text-primary">Privacy Policy</Link></li>
-              <li><Link href="#" className="text-muted-foreground hover:text-primary">Terms of Service</Link></li>
+              <li><Link href="/privacy" className="text-muted-foreground hover:text-primary">Privacy Policy</Link></li>
+              <li><Link href="/terms" className="text-muted-foreground hover:text-primary">Terms of Service</Link></li>
             </ul>
           </div>
         </div>
