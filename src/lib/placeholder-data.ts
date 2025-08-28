@@ -144,3 +144,4 @@ export const artisanData: Artisan[] = [
     reviews: [],
   },
 ];
+
